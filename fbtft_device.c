@@ -1203,7 +1203,7 @@ static struct fbtft_device_display displays[] = {
 					    { "cs", 10 },
 					    { "dc", 5 },
 					    { "wr", 15 },
-					    { "rd", 15 },
+					    { "rd", 7 },
 					    { "reset", 48 },
 					    {},
 				    },
