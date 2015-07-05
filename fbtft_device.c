@@ -1180,6 +1180,37 @@ static struct fbtft_device_display displays[] = {
 		}
 	},
 #endif
+    {
+		.name = "mcufriend24-galileo2",
+		.pdev = &(struct platform_device) {
+			.name = "flexpfb",
+			.id = 0,
+			.dev = {
+			    .release = fbtft_device_pdev_release,
+			    .platform_data = &(struct fbtft_platform_data) {
+			        .display = {
+					    .buswidth = 8,
+					},
+				    .gpios = (const struct fbtft_gpio []) {
+					    { "db0", 13 },
+					    { "db1", 14 },
+					    { "db2", 6 },
+					    { "db3", 0 },
+					    { "db4", 1 },
+					    { "db5", 38 },
+					    { "db6", 40 },
+					    { "db7", 4 },
+					    { "cs", 10 },
+					    { "dc", 5 },
+					    { "wr", 15 },
+					    { "rd", 15 },
+					    { "reset", 48 },
+					    {},
+				    },
+			    },
+			}
+		}
+	},
 	{
 		.name = "spidev",
 		.spi = &(struct spi_board_info) {
