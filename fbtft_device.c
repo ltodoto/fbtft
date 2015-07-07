@@ -1179,7 +1179,6 @@ static struct fbtft_device_display displays[] = {
 			}
 		}
 	},
-#endif
     {
 		.name = "mcufriend24-galileo2",
 		.pdev = &(struct platform_device) {
@@ -1192,25 +1191,25 @@ static struct fbtft_device_display displays[] = {
 					    .buswidth = 8,
 					},
 				    .gpios = (const struct fbtft_gpio []) {
-					    { "db0", 13 },
-					    { "db1", 14 },
-					    { "db2", 6 },
-					    { "db3", 0 },
-					    { "db4", 1 },
-					    { "db5", 38 },
-					    { "db6", 40 },
-					    { "db7", 4 },
+					    { "db2", 13 },
+					    { "db3", 14 },
+					    { "db4", 6 },
+					    { "db5", 0 },
+					    { "db6", 1 },
+					    { "db7", 38 },
+					    { "db0", 40 },
+					    { "db1", 4 },
 					    { "cs", 10 },
 					    { "dc", 5 },
 					    { "wr", 15 },
 					    { "rd", 7 },
-					    { "reset", 48 },
 					    {},
 				    },
 			    },
 			}
 		}
 	},
+#endif
 	{
 		.name = "spidev",
 		.spi = &(struct spi_board_info) {
