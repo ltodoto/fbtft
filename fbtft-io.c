@@ -154,7 +154,7 @@ int fbtft_write_gpio8_rd(struct fbtft_par *par, void *buf, size_t len)
 		/* Get data */
 		*data = 0;
 		for (i = 0; i < 8; i++) {
-			*data = gpio_get_value(par->gpio.db[7 - i]);
+			*data |= gpio_get_value(par->gpio.db[7 - i]) & 1;
 			*data <<= 1;
 		}
 
@@ -239,7 +239,7 @@ int fbtft_write_gpio16_rd(struct fbtft_par *par, void *buf, size_t len)
 		/* Get data */
 		*data = 0;
 		for (i = 0; i < 16; i++) {
-			*data = gpio_get_value(par->gpio.db[15 - i]);
+			*data |= gpio_get_value(par->gpio.db[15 - i]) & 1;
 			*data <<= 1;
 		}
 
