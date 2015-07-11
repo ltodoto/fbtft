@@ -40,10 +40,10 @@ void func(struct fbtft_par *par, int len, ...)                                \
 									      \
 	*buf = modifier((type)va_arg(args, unsigned int));                    \
 	if (par->gpio.dc != -1) {                                             \
-	    if (!gpio_cansleep(par->gpio.dc))                                 \
-    		gpio_set_value(par->gpio.dc, 0);                              \
-    	else                                                              \
-    	    gpio_set_value_cansleep(par->gpio.dc, 0);                     \
+		if (unlikely(gpio_cansleep(par->gpio.dc)==0))                     \
+			gpio_set_value(par->gpio.dc, 0);                              \
+		else                                                              \
+			gpio_set_value_cansleep(par->gpio.dc, 0);                     \
     }                                                                     \
 	ret = par->fbtftops.write(par, par->buf, sizeof(type)+offset);        \
 	if (ret < 0) {                                                        \
@@ -62,10 +62,10 @@ void func(struct fbtft_par *par, int len, ...)                                \
 			*buf++ = modifier((type)va_arg(args, unsigned int));  \
 		}                                                             \
 		if (par->gpio.dc != -1) {                                             \
-	        if (!gpio_cansleep(par->gpio.dc))                                 \
-    	    	gpio_set_value(par->gpio.dc, 1);                              \
+			if (unlikely(gpio_cansleep(par->gpio.dc)==0))                     \
+				gpio_set_value(par->gpio.dc, 1);                              \
     	    else                                                              \
-    	        gpio_set_value_cansleep(par->gpio.dc, 1);                     \
+				gpio_set_value_cansleep(par->gpio.dc, 1);                     \
         }                                                                     \
 	    ret = par->fbtftops.write(par, par->buf, len * (sizeof(type)+offset)); \
 		if (ret < 0) {                                                \
@@ -153,10 +153,10 @@ int fbtft_write_vmem16_bus8(struct fbtft_par *par, size_t offset, size_t len)
 	vmem16 = (u16 *)(par->info->screen_base + offset);
 
 	if (par->gpio.dc != -1) {
-	    if (!gpio_cansleep(par->gpio.dc))
-    		gpio_set_value(par->gpio.dc, 1);
-    	else
-    	    gpio_set_value_cansleep(par->gpio.dc, 1);
+		if (unlikely(gpio_cansleep(par->gpio.dc)==0))
+			gpio_set_value(par->gpio.dc, 1);
+		else
+			gpio_set_value_cansleep(par->gpio.dc, 1);
     }
 
 	/* non buffered write */
@@ -260,10 +260,10 @@ int fbtft_write_vmem16_bus16(struct fbtft_par *par, size_t offset, size_t len)
 	vmem16 = (u16 *)(par->info->screen_base + offset);
 
 	if (par->gpio.dc != -1) {
-	    if (!gpio_cansleep(par->gpio.dc))
-    		gpio_set_value(par->gpio.dc, 1);
-    	else
-    	    gpio_set_value_cansleep(par->gpio.dc, 1);
+		if (unlikely(gpio_cansleep(par->gpio.dc)==0))
+			gpio_set_value(par->gpio.dc, 1);
+		else
+			gpio_set_value_cansleep(par->gpio.dc, 1);
     }
 
 	/* no need for buffered write with 16-bit bus */

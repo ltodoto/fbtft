@@ -4,6 +4,14 @@
 #include <linux/spi/spi.h>
 #include "fbtft.h"
 
+#define gpio_set_value(__id,__val) \
+		{ \
+			if (unlikely(gpio_cansleep(__id)==0)) \
+				gpio_set_value(__id, __val); \
+			else \
+				gpio_set_value_cansleep(__id, __val); \
+		}
+
 int fbtft_write_spi(struct fbtft_par *par, void *buf, size_t len)
 {
 	struct spi_transfer t = {
