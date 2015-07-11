@@ -1429,8 +1429,10 @@ int fbtft_probe_common(struct fbtft_display *display,
 			par->fbtftops.read = fbtft_write_gpio8_rd;
 			par->fbtftops.write = fbtft_write_gpio8_wr;
 		}
-		else if (display->buswidth == 16)
+		else if (display->buswidth == 16) {
+			par->fbtftops.read = fbtft_write_gpio16_rd;
 			par->fbtftops.write = fbtft_write_gpio16_wr;
+		}
 	}
 
 	/* 9-bit SPI setup */
