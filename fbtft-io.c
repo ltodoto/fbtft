@@ -2,8 +2,13 @@
 #include <linux/errno.h>
 #include <linux/gpio.h>
 #include <linux/spi/spi.h>
+#include <linux/delay.h>
 #include "fbtft.h"
 
+#define gpio_get_value(__id) \
+			unlikely(gpio_cansleep(__id)==0) ? \
+			gpio_get_value(__id) : \
+			gpio_get_value_cansleep(__id)
 #define gpio_set_value(__id,__val) \
 		{ \
 			if (unlikely(gpio_cansleep(__id)==0)) \
@@ -133,6 +138,37 @@ int fbtft_read_spi(struct fbtft_par *par, void *buf, size_t len)
 }
 EXPORT_SYMBOL(fbtft_read_spi);
 
+int fbtft_write_gpio8_rd(struct fbtft_par *par, void *buf, size_t len)
+{
+	u8 *data;
+	int i;
+	size_t bytesLeft = len;
+	while (bytesLeft--) {
+		data = (u8 *) buf;
+
+		/* Start reading by pulling down /RD */
+		gpio_set_value(par->gpio.rd, 0);
+
+		mdelay(1);
+
+		/* Get data */
+		*data = 0;
+		for (i = 0; i < 8; i++) {
+			*data = gpio_get_value(par->gpio.db[7 - i]);
+			*data <<= 1;
+		}
+
+		/* Pullup /RD */
+		gpio_set_value(par->gpio.rd, 1);
+		buf++;
+	}
+	fbtft_par_dbg_hex(DEBUG_READ, par, par->info->device, u8, buf, len,
+		"%s(len=%d): ", __func__, len);
+
+	return 0;
+}
+EXPORT_SYMBOL(fbtft_write_gpio8_rd);
+
 /*
  * Optimized use of gpiolib is twice as fast as no optimization
  * only one driver can use the optimized version at a time
@@ -186,6 +222,38 @@ int fbtft_write_gpio8_wr(struct fbtft_par *par, void *buf, size_t len)
 	return 0;
 }
 EXPORT_SYMBOL(fbtft_write_gpio8_wr);
+
+int fbtft_write_gpio16_rd(struct fbtft_par *par, void *buf, size_t len)
+{
+	u16 *data;
+	int i;
+	size_t bytesLeft = len;
+	while (bytesLeft) {
+		data = (u16 *) buf;
+
+		/* Start reading by pulling down /RD */
+		gpio_set_value(par->gpio.rd, 0);
+
+		mdelay(1);
+
+		/* Get data */
+		*data = 0;
+		for (i = 0; i < 16; i++) {
+			*data = gpio_get_value(par->gpio.db[15 - i]);
+			*data <<= 1;
+		}
+
+		/* Pullup /RD */
+		gpio_set_value(par->gpio.rd, 1);
+		buf += 2;
+		bytesLeft += 2;
+	}
+	fbtft_par_dbg_hex(DEBUG_READ, par, par->info->device, u8, buf, len,
+		"%s(len=%d): ", __func__, len);
+
+	return 0;
+}
+EXPORT_SYMBOL(fbtft_write_gpio16_rd);
 
 int fbtft_write_gpio16_wr(struct fbtft_par *par, void *buf, size_t len)
 {

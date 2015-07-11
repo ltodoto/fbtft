@@ -1425,8 +1425,10 @@ int fbtft_probe_common(struct fbtft_display *display,
 
 	/* GPIO write() functions */
 	if (par->pdev) {
-		if (display->buswidth == 8)
+		if (display->buswidth == 8) {
+			par->fbtftops.read = fbtft_write_gpio8_rd;
 			par->fbtftops.write = fbtft_write_gpio8_wr;
+		}
 		else if (display->buswidth == 16)
 			par->fbtftops.write = fbtft_write_gpio16_wr;
 	}

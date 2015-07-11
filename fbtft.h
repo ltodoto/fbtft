@@ -281,7 +281,9 @@ extern int fbtft_write_spi(struct fbtft_par *par, void *buf, size_t len);
 extern int fbtft_write_spi_emulate_9(struct fbtft_par *par,
 	void *buf, size_t len);
 extern int fbtft_read_spi(struct fbtft_par *par, void *buf, size_t len);
+extern int fbtft_write_gpio8_rd(struct fbtft_par *par, void *buf, size_t len);
 extern int fbtft_write_gpio8_wr(struct fbtft_par *par, void *buf, size_t len);
+extern int fbtft_write_gpio16_rd(struct fbtft_par *par, void *buf, size_t len);
 extern int fbtft_write_gpio16_wr(struct fbtft_par *par, void *buf, size_t len);
 extern int fbtft_write_gpio16_wr_latched(struct fbtft_par *par,
 	void *buf, size_t len);
