@@ -92,16 +92,16 @@ static int init_display(struct fbtft_par *par)
 
 	/* R11h=0x1800 at VCI=3.3V VDV[4:0] for VCOM amplitude */
 	write_reg(par, 0x0011, 0x071A);
-    mdelay(10);
+	mdelay(10);
 
 	/* R21h=0x0008 at VCI=3.3V VCM[4:0] for VCOMH */
 	write_reg(par, 0x0011, 0x0F1A);
-    mdelay(10);
+	mdelay(10);
 	
 	write_reg(par, 0x0011, 0x0F3A);
 	mdelay(30);
 
-    /* set SS bit and driving lines */
+	/* set SS bit and driving lines */
 	write_reg(par, 0x0001, 0x0128);
 
 	/* set 1 line inversion */
@@ -121,7 +121,7 @@ static int init_display(struct fbtft_par *par)
 	/* RGB interface setting */
 	write_reg(par, 0x000C, 0x0000);
 
-    /* VCI recycling setting */
+	/* VCI recycling setting */
 	write_reg(par, 0x0015, 0x0000);
 
 	/* GRAM horizontal Address */
@@ -142,9 +142,6 @@ static int init_display(struct fbtft_par *par)
 
 	/* Vertical GRAM End Address */
 	write_reg(par, 0x0038, 0x013F);
-
-	/* Gate Scan Line */
-	write_reg(par, 0x0030, 0x2700);
 
 	/* Start internal OSC. */
 	write_reg(par, 0x000F, 0x0801);

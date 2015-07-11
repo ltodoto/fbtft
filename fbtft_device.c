@@ -164,11 +164,11 @@ static int hy28b_init_sequence[] = {
 	-1, 0x0097, 0x0000, -1, 0x0098, 0x0000,
 	-1, 0x0007, 0x0133, -1, 0x0020, 0x0000,
 	-1, 0x0021, 0x0000, -2, 100, -3 };
-#endif
 
 #define HY28B_GAMMA \
 	"04 1F 4 7 7 0 7 7 6 0\n" \
 	"0F 00 1 7 4 0 0 0 6 7"
+#endif
 #ifdef CONFIG_FB_TFT_ILI9340
 static int pitft_init_sequence[] = {
 	-1, 0x01, -2, 5, -1, 0x28, -1, 0xEF,
@@ -734,7 +734,7 @@ static struct fbtft_device_display displays[] = {
 		}
 	},
 #endif
-#ifdef CONFIG_FB_TFT_S6D0154
+//#ifdef CONFIG_FB_TFT_S6D0154
     {
 		.name = "mcufriend24-galileo2",
 		.pdev = &(struct platform_device) {
@@ -765,7 +765,7 @@ static struct fbtft_device_display displays[] = {
 			}
 		}
 	},
-#endif
+//#endif
 #ifdef CONFIG_FB_TFT_S6D02A1
 	{
 		.name = "s6d02a1",
