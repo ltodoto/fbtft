@@ -687,7 +687,7 @@ static struct fbtft_device_display displays[] = {
 			}
 		}
 	},
-	#endif
+#endif
 #ifdef CONFIG_FB_TFT_RA8875
 	{
 		.name = "er_tftm050_2",
@@ -733,7 +733,39 @@ static struct fbtft_device_display displays[] = {
 			}
 		}
 	},
-	#endif
+#endif
+#ifdef CONFIG_FB_TFT_S6D0154
+    {
+		.name = "mcufriend24-galileo2",
+		.pdev = &(struct platform_device) {
+			.name = "fb_s6d0154",
+			.id = 0,
+			.dev = {
+			    .release = fbtft_device_pdev_release,
+			    .platform_data = &(struct fbtft_platform_data) {
+			        .display = {
+					    .buswidth = 8,
+					},
+				    .gpios = (const struct fbtft_gpio []) {
+					    { "db2", 13 },
+					    { "db3", 14 },
+					    { "db4", 6 },
+					    { "db5", 0 },
+					    { "db6", 1 },
+					    { "db7", 38 },
+					    { "db0", 40 },
+					    { "db1", 4 },
+					    { "cs", 10 },
+					    { "dc", 5 },
+					    { "wr", 15 },
+					    { "rd", 7 },
+					    {},
+				    },
+			    },
+			}
+		}
+	},
+#endif
 #ifdef CONFIG_FB_TFT_S6D02A1
 	{
 		.name = "s6d02a1",
@@ -1176,36 +1208,6 @@ static struct fbtft_device_display displays[] = {
 					{},
 				},
 			},
-			}
-		}
-	},
-    {
-		.name = "mcufriend24-galileo2",
-		.pdev = &(struct platform_device) {
-			.name = "flexpfb",
-			.id = 0,
-			.dev = {
-			    .release = fbtft_device_pdev_release,
-			    .platform_data = &(struct fbtft_platform_data) {
-			        .display = {
-					    .buswidth = 8,
-					},
-				    .gpios = (const struct fbtft_gpio []) {
-					    { "db2", 13 },
-					    { "db3", 14 },
-					    { "db4", 6 },
-					    { "db5", 0 },
-					    { "db6", 1 },
-					    { "db7", 38 },
-					    { "db0", 40 },
-					    { "db1", 4 },
-					    { "cs", 10 },
-					    { "dc", 5 },
-					    { "wr", 15 },
-					    { "rd", 7 },
-					    {},
-				    },
-			    },
 			}
 		}
 	},

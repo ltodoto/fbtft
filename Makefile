@@ -24,6 +24,7 @@ obj-$(CONFIG_FB_TFT_ILI9481)     += fb_ili9481.o
 obj-$(CONFIG_FB_TFT_ILI9486)     += fb_ili9486.o
 obj-$(CONFIG_FB_TFT_PCD8544)     += fb_pcd8544.o
 obj-$(CONFIG_FB_TFT_RA8875)      += fb_ra8875.o
+obj-$(CONFIG_FB_TFT_S6D0154)     += fb_s6d0154.o
 obj-$(CONFIG_FB_TFT_S6D02A1)     += fb_s6d02a1.o
 obj-$(CONFIG_FB_TFT_S6D1121)     += fb_s6d1121.o
 obj-$(CONFIG_FB_TFT_SSD1289)     += fb_ssd1289.o
