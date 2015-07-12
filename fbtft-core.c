@@ -90,7 +90,7 @@ static unsigned long fbtft_request_gpios_match(struct fbtft_par *par,
 		return GPIOF_OUT_INIT_HIGH;
 	} else if (strcasecmp(gpio->name, "dc") == 0) {
 		par->gpio.dc = gpio->gpio;
-		return GPIOF_OUT_INIT_LOW;
+		return GPIOF_OUT_INIT_HIGH;
 	} else if (strcasecmp(gpio->name, "cs") == 0) {
 		par->gpio.cs = gpio->gpio;
 		return GPIOF_OUT_INIT_HIGH;
@@ -1166,8 +1166,6 @@ int fbtft_init_display(struct fbtft_par *par)
 	}
 
 	par->fbtftops.reset(par);
-	if (par->gpio.cs != -1)
-		gpio_set_value(par->gpio.cs, 0);  /* Activate chip */
 
 	i = 0;
 	while (i < FBTFT_MAX_INIT_SEQUENCE) {

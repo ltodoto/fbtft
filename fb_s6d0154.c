@@ -41,11 +41,11 @@
 static unsigned read_devicecode(struct fbtft_par *par)
 {
 	int ret;
-	u8 rxbuf[8] = {0, };
+	u8 rxbuf[4] = {0, };
 
 	write_reg(par, 0x0000);
-	ret = par->fbtftops.read(par, rxbuf, 4);
-	return (rxbuf[2] << 8) | rxbuf[3];
+	ret = par->fbtftops.read(par, rxbuf, 2);
+	return (rxbuf[0] << 8) | rxbuf[1];
 }
 
 static int init_display(struct fbtft_par *par)
@@ -122,7 +122,7 @@ static int init_display(struct fbtft_par *par)
 	write_reg(par, 0x000C, 0x0000);
 
 	/* VCI recycling setting */
-	write_reg(par, 0x0015, 0x0000);
+	write_reg(par, 0x0015, 0x0020);
 
 	/* GRAM horizontal Address */
 	write_reg(par, 0x0020, 0x0000);

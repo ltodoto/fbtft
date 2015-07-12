@@ -44,8 +44,14 @@ void func(struct fbtft_par *par, int len, ...)                                \
 			gpio_set_value(par->gpio.dc, 0);                              \
 		else                                                              \
 			gpio_set_value_cansleep(par->gpio.dc, 0);                     \
-    }                                                                     \
+	}                                                                     \
 	ret = par->fbtftops.write(par, par->buf, sizeof(type)+offset);        \
+	if (par->gpio.dc != -1) {                                             \
+		if (unlikely(gpio_cansleep(par->gpio.dc)==0))                     \
+			gpio_set_value(par->gpio.dc, 1);                              \
+		else                                                              \
+			gpio_set_value_cansleep(par->gpio.dc, 1);                     \
+	}                                                                     \
 	if (ret < 0) {                                                        \
 		va_end(args);                                                 \
 		dev_err(par->info->device, "%s: write() failed and returned %d\n", __func__, ret); \
@@ -61,12 +67,6 @@ void func(struct fbtft_par *par, int len, ...)                                \
 		while (i--) {                                                 \
 			*buf++ = modifier((type)va_arg(args, unsigned int));  \
 		}                                                             \
-		if (par->gpio.dc != -1) {                                             \
-			if (unlikely(gpio_cansleep(par->gpio.dc)==0))                     \
-				gpio_set_value(par->gpio.dc, 1);                              \
-    	    else                                                              \
-				gpio_set_value_cansleep(par->gpio.dc, 1);                     \
-        }                                                                     \
 	    ret = par->fbtftops.write(par, par->buf, len * (sizeof(type)+offset)); \
 		if (ret < 0) {                                                \
 			va_end(args);                                         \
@@ -81,6 +81,14 @@ EXPORT_SYMBOL(func);
 define_fbtft_write_reg(fbtft_write_reg8_bus8, u8, )
 define_fbtft_write_reg(fbtft_write_reg16_bus8, u16, cpu_to_be16)
 define_fbtft_write_reg(fbtft_write_reg16_bus16, u16, )
+
+#define gpio_set_value(__id,__val) \
+		{ \
+			if (unlikely(gpio_cansleep(__id)==0)) \
+				gpio_set_value(__id, __val); \
+			else \
+				gpio_set_value_cansleep(__id, __val); \
+		}
 
 void fbtft_write_reg8_bus9(struct fbtft_par *par, int len, ...)
 {
@@ -152,12 +160,8 @@ int fbtft_write_vmem16_bus8(struct fbtft_par *par, size_t offset, size_t len)
 	remain = len / 2;
 	vmem16 = (u16 *)(par->info->screen_base + offset);
 
-	if (par->gpio.dc != -1) {
-		if (unlikely(gpio_cansleep(par->gpio.dc)==0))
-			gpio_set_value(par->gpio.dc, 1);
-		else
-			gpio_set_value_cansleep(par->gpio.dc, 1);
-    }
+	if (par->gpio.dc != -1)
+		gpio_set_value(par->gpio.dc, 1);
 
 	/* non buffered write */
 	if (!par->txbuf.buf)
@@ -259,12 +263,8 @@ int fbtft_write_vmem16_bus16(struct fbtft_par *par, size_t offset, size_t len)
 
 	vmem16 = (u16 *)(par->info->screen_base + offset);
 
-	if (par->gpio.dc != -1) {
-		if (unlikely(gpio_cansleep(par->gpio.dc)==0))
-			gpio_set_value(par->gpio.dc, 1);
-		else
-			gpio_set_value_cansleep(par->gpio.dc, 1);
-    }
+	if (par->gpio.dc != -1)
+		gpio_set_value(par->gpio.dc, 1);
 
 	/* no need for buffered write with 16-bit bus */
 	return par->fbtftops.write(par, vmem16, len);

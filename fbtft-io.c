@@ -19,6 +19,7 @@
 
 int fbtft_write_spi(struct fbtft_par *par, void *buf, size_t len)
 {
+	int ret;
 	struct spi_transfer t = {
 		.tx_buf = buf,
 		.len = len,
@@ -34,13 +35,18 @@ int fbtft_write_spi(struct fbtft_par *par, void *buf, size_t len)
 		return -1;
 	}
 
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 0);
 	spi_message_init(&m);
 	if (par->txbuf.dma && buf == par->txbuf.buf) {
 		t.tx_dma = par->txbuf.dma;
 		m.is_dma_mapped = 1;
 	}
 	spi_message_add_tail(&t, &m);
-	return spi_sync(par->spi, &m);
+	ret = spi_sync(par->spi, &m);
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 1);
+	return ret;
 }
 EXPORT_SYMBOL(fbtft_write_spi);
 
@@ -59,7 +65,7 @@ int fbtft_write_spi_emulate_9(struct fbtft_par *par, void *buf, size_t len)
 	u8 *dst = par->extra;
 	size_t size = len / 2;
 	size_t added = 0;
-	int bits, i, j;
+	int bits, i, j, ret;
 	u64 val, dc, tmp;
 
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
@@ -94,7 +100,12 @@ int fbtft_write_spi_emulate_9(struct fbtft_par *par, void *buf, size_t len)
 		added++;
 	}
 
-	return spi_write(par->spi, par->extra, size + added);
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 0);
+	ret = spi_write(par->spi, par->extra, size + added);
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 1);
+	return ret;
 }
 EXPORT_SYMBOL(fbtft_write_spi_emulate_9);
 
@@ -128,9 +139,13 @@ int fbtft_read_spi(struct fbtft_par *par, void *buf, size_t len)
 			txbuf, len, "%s(len=%d) txbuf => ", __func__, len);
 	}
 
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 0);
 	spi_message_init(&m);
 	spi_message_add_tail(&t, &m);
 	ret = spi_sync(par->spi, &m);
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 1);
 	fbtft_par_dbg_hex(DEBUG_READ, par, par->info->device, u8, buf, len,
 		"%s(len=%d) buf <= ", __func__, len);
 
@@ -143,6 +158,8 @@ int fbtft_write_gpio8_rd(struct fbtft_par *par, void *buf, size_t len)
 	u8 *data;
 	int i;
 	size_t bytesLeft = len;
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 0);
 	while (bytesLeft--) {
 		data = (u8 *) buf;
 
@@ -153,17 +170,19 @@ int fbtft_write_gpio8_rd(struct fbtft_par *par, void *buf, size_t len)
 
 		/* Get data */
 		*data = 0;
-		for (i = 0; i < 8; i++) {
-			*data |= gpio_get_value(par->gpio.db[7 - i]) & 1;
+		for (i = 7; i >= 0; i--) {
 			*data <<= 1;
+			*data |= gpio_get_value(par->gpio.db[i]) & 1;
 		}
 
 		/* Pullup /RD */
 		gpio_set_value(par->gpio.rd, 1);
 		buf++;
 	}
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 1);
 	fbtft_par_dbg_hex(DEBUG_READ, par, par->info->device, u8, buf, len,
-		"%s(len=%d): ", __func__, len);
+		"%s(len=%d) buf <= ", __func__, len);
 
 	return 0;
 }
@@ -184,6 +203,8 @@ int fbtft_write_gpio8_wr(struct fbtft_par *par, void *buf, size_t len)
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
 		"%s(len=%d): ", __func__, len);
 
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 0);
 	while (len--) {
 		data = *(u8 *) buf;
 
@@ -218,6 +239,8 @@ int fbtft_write_gpio8_wr(struct fbtft_par *par, void *buf, size_t len)
 #endif
 		buf++;
 	}
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 1);
 
 	return 0;
 }
@@ -228,6 +251,8 @@ int fbtft_write_gpio16_rd(struct fbtft_par *par, void *buf, size_t len)
 	u16 *data;
 	int i;
 	size_t bytesLeft = len;
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 0);
 	while (bytesLeft) {
 		data = (u16 *) buf;
 
@@ -238,9 +263,9 @@ int fbtft_write_gpio16_rd(struct fbtft_par *par, void *buf, size_t len)
 
 		/* Get data */
 		*data = 0;
-		for (i = 0; i < 16; i++) {
-			*data |= gpio_get_value(par->gpio.db[15 - i]) & 1;
+		for (i = 15; i >= 0; i--) {
 			*data <<= 1;
+			*data |= gpio_get_value(par->gpio.db[i]) & 1;
 		}
 
 		/* Pullup /RD */
@@ -248,8 +273,10 @@ int fbtft_write_gpio16_rd(struct fbtft_par *par, void *buf, size_t len)
 		buf += 2;
 		bytesLeft += 2;
 	}
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 1);
 	fbtft_par_dbg_hex(DEBUG_READ, par, par->info->device, u8, buf, len,
-		"%s(len=%d): ", __func__, len);
+		"%s(len=%d) buf <= ", __func__, len);
 
 	return 0;
 }
@@ -266,6 +293,8 @@ int fbtft_write_gpio16_wr(struct fbtft_par *par, void *buf, size_t len)
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
 		"%s(len=%d): ", __func__, len);
 
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 0);
 	while (len) {
 		data = *(u16 *) buf;
 
@@ -301,6 +330,8 @@ int fbtft_write_gpio16_wr(struct fbtft_par *par, void *buf, size_t len)
 		buf += 2;
 		len -= 2;
 	}
+	if (par->gpio.cs != -1)
+		gpio_set_value(par->gpio.cs, 1);
 
 	return 0;
 }
