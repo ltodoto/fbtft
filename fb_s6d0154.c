@@ -101,27 +101,28 @@ static int init_display(struct fbtft_par *par)
 	write_reg(par, 0x0011, 0x0F3A);
 	mdelay(30);
 
-	/* set SS bit and driving lines */
+	/* set SS bit and driving lines (720x320, use 320 drive lines) */
 	write_reg(par, 0x0001, 0x0128);
 
-	/* set 1 line inversion */
-	write_reg(par, 0x0002, 0x0100);
+	/* no line inversion, FLD = 0 */
+	write_reg(par, 0x0002, 0x0300);
 
-	/* Set BGR byte order and decrement control */
+	/* Set BGR byte order, horz inc, vert inc, AM = 0 */
 	write_reg(par, 0x0003, 0x1030);
 	
+	/* Disable display output */
 	write_reg(par, 0x0007, 0x0000);
 
-	/* set blank period back and front porch */
+	/* set blank period for front and back porch (8/8 raster periods) */
 	write_reg(par, 0x0008, 0x0808);
 
-	/* Frame cycle control */
+	/* Frame cycle control (1/1/16 input clk) */
 	write_reg(par, 0x000B, 0x1100);
 
-	/* RGB interface setting */
+	/* RGB interface setting (system interface, internal clock) */
 	write_reg(par, 0x000C, 0x0000);
 
-	/* VCI recycling setting */
+	/* VCI recycling setting (multiplier = 2) */
 	write_reg(par, 0x0015, 0x0020);
 
 	/* GRAM horizontal Address */
